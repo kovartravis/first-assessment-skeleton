@@ -43,7 +43,9 @@ cli
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     } else if (command === 'broadcast'){
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
-    } 
+    } else if (input[0] === '@'){
+      server.write(new Message({ username, command: 'whisper', contents: contents, wUsername: command  }).toJSON() + '\n')
+    }
     else {
       this.log(`Command <${command}> was not recognized`)
     }
