@@ -9,6 +9,7 @@ let username
 let host = 'localhost'
 let port = 8080
 let server
+let prevCmd
 
 cli
   .delimiter(cli.chalk['yellow']('ftd~$'))
@@ -38,6 +39,7 @@ cli
     const contents = rest.join(' ')
 
     if (command === 'disconnect') {
+      prevCmd = command
       server.end(new Message({ username, command }).toJSON() + '\n')
     } else if (command === 'echo') {
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
@@ -45,6 +47,8 @@ cli
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     } else if (input[0] === '@'){
       server.write(new Message({ username, command: 'whisper', contents: contents, wUsername: command  }).toJSON() + '\n')
+    } else if(command === 'users'){
+      server.write(new Message({ username, command, contents }).toJSON() + '\n')
     }
     else {
       this.log(`Command <${command}> was not recognized`)
