@@ -5,11 +5,13 @@ import { Message } from './Message'
 
 export const cli = vorpal()
 
-let username
 let host = 'localhost'
 let port = 8080
 let server
-let prevCmd
+let prevCmd = null
+let prevUsername = null
+let time = new Date()
+let username
 
 cli
   .delimiter(cli.chalk['yellow']('ftd~$'))
@@ -27,7 +29,24 @@ cli
     })
 
     server.on('data', (buffer) => {
-      this.log(Message.fromJSON(buffer).toString())
+      let message = Message.fromJSON(buffer)
+      let timestamp = time.toLocaleTimeString()
+      if(message.command === 'echo'){
+        this.log(cli.chalk['grey'](`${timestamp} <${message.username}> (echo): ${message.contents}`))
+      }else if(message.command === 'broadcast' ){
+        this.log(cli.chalk['cyan'](`${timestamp} <${message.username}> (all): ${message.contents}`))
+      }else if(message.command === 'whisper'){
+        this.log(cli.chalk['blue'](`${timestamp} <${message.username}> (whisper): ${message.contents}`))
+      }else if(message.command === 'users'){
+        this.log(cli.chalk['green'](`${timestamp}: currently connected users:`))
+        message.contents.slice(1, message.contents.length - 1).split(', ').forEach( (a) => this.log(cli.chalk['green'](`<${a}>`)) )
+      }else if(message.command === 'newuser'){
+        this.log(cli.chalk['red'](`${timestamp}: <${message.username}> has connected`))
+      }else if(message.command === 'userleft'){
+        this.log(cli.chalk['red'](`${timestamp}: <${message.username}> has disconnected`))
+      }else{
+        this.log('something went wrong!')
+      }
     })
 
     server.on('end', () => {
@@ -42,16 +61,27 @@ cli
       prevCmd = command
       server.end(new Message({ username, command }).toJSON() + '\n')
     } else if (command === 'echo') {
+      prevCmd = command
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     } else if (command === 'broadcast'){
+      prevCmd = command
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     } else if (input[0] === '@'){
+      prevCmd = 'whisper'
+      prevUsername = command
       server.write(new Message({ username, command: 'whisper', contents: contents, wUsername: command  }).toJSON() + '\n')
     } else if(command === 'users'){
+      prevCmd = command
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     }
     else {
-      this.log(`Command <${command}> was not recognized`)
+      if(prevCmd === 'whisper'){
+        server.write(new Message({ username, command: 'whisper', contents: command, wUsername: prevUsername  }).toJSON() + '\n')
+      }else if(prevCmd){
+        server.write(new Message({ username, command: prevCmd, contents: command }).toJSON() + '\n')
+      }else{
+        this.log(`Command <${command}> was not recognized`)
+      }
     }
 
     callback()
