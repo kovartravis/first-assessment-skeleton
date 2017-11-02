@@ -5,7 +5,8 @@ public class Message {
 	private String username;
 	private String command;
 	private String contents;
-
+	private String wUsername;
+	
 	public String getUsername() {
 		return username;
 	}
@@ -28,6 +29,14 @@ public class Message {
 
 	public void setContents(String contents) {
 		this.contents = contents;
+	}
+	
+	public String getwUsername() {
+		return wUsername;
+	}
+	
+	public void setwUsername(String wUsername) {
+		this.wUsername = wUsername;
 	}
 
 }
