@@ -85,7 +85,7 @@ cli
         server.write(new Message({ username, command: 'givenewpassword', contents: input }).toJSON() + '\n')
       }else{
         server.write(new Message({ username, command: 'givepassword', contents: input }).toJSON() + '\n')
-      }
+      } 
     }else{
       if (command === 'disconnect') {
         prevCmd = null
