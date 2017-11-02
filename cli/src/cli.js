@@ -44,7 +44,12 @@ cli
         this.log(cli.chalk['red'](`${timestamp}: <${message.username}> has connected`))
       }else if(message.command === 'userleft'){
         this.log(cli.chalk['red'](`${timestamp}: <${message.username}> has disconnected`))
-      }else{
+      }else if(message.command === 'newgroup'){
+        this.log(cli.chalk['magenta'](`${timestamp}: ${message.contents}`))
+      }else if(message.command === 'joingroup'){
+        this.log(cli.chalk['magenta'](`${timestamp}: ${message.contents}`))
+      }
+      else{
         this.log('something went wrong!')
       }
     })
@@ -71,6 +76,12 @@ cli
       prevUsername = command
       server.write(new Message({ username, command: 'whisper', contents: contents, wUsername: command  }).toJSON() + '\n')
     } else if(command === 'users'){
+      prevCmd = command
+      server.write(new Message({ username, command, contents }).toJSON() + '\n')
+    }else if(command === 'newgroup'){
+      prevCmd = command
+      server.write(new Message({ username, command, contents }).toJSON() + '\n')
+    }else if(command === 'joingroup'){
       prevCmd = command
       server.write(new Message({ username, command, contents }).toJSON() + '\n')
     }
